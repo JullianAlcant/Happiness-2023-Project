@@ -1,0 +1,137 @@
+---
+title: "Final Project (Happiness)"
+author: "Jullian Alcantaraa"
+date: "2024-04-26"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(carData)
+```
+
+
+```{r}
+happy <- read.csv("WHR2023.csv")
+attach(happy)
+head(happy)
+dim(happy)
+str(happy)
+n1 <- nrow(happy)
+summary(happy)
+```
+
+
+```{r}
+happy2 <- happy[,- c(12,4,5)]
+colnames(happy2)
+```
+
+
+```{r}
+pairs(Ladder.score ~  upperwhisker + lowerwhisker + Healthy.life.expectancy + Perceptions.of.corruption, data = happy2)
+```
+
+```{r}
+pairs(Ladder.score ~  Explained.by..Social.support  + Explained.by..Healthy.life.expectancy + Explained.by..Freedom.to.make.life.choices + Dystopia...residual, data = happy2)
+```
+
+
+
+
+```{r}
+mod <- lm(Ladder.score ~ . - Country.name, data = happy2)
+summary(mod)
+
+mod1 <- lm(Ladder.score ~ 1 , data = happy2)
+summary(mod1)
+```
+
+Backward AIC and BIC
+```{r}
+backstepa <- step(mod, direction = "backward", trace = 0) # AIC (10 Predictors)
+backstepa
+backstepb <- step(mod, direction = "backward", trace = 0, k = log(n1)) #BIC (9 Predictors)
+backstepb
+```
+
+Forward AIC and BIC
+```{r}
+stepa <- step(mod, scope = list(lower = mod1, upper = mod), direction = "forward", trace = 0) # AIC
+stepa
+stepb <- step(mod, scope = list(lower = mod1, upper = mod), direction = "forward", trace = 0, k = log(n1)) #BIC
+stepb
+```
+
+
+```{r}
+anova(backstepa, backstepb, stepa, stepb)
+```
+
+
+
+Refitting the new model
+```{r}
+fit <- lm(Ladder.score ~ upperwhisker + lowerwhisker + Logged.GDP.per.capita + 
+    Healthy.life.expectancy + Generosity + Perceptions.of.corruption + 
+    Explained.by..Social.support + Explained.by..Healthy.life.expectancy + 
+    Explained.by..Freedom.to.make.life.choices + Dystopia...residual, 
+    data = happy)
+summary(fit)
+plot(fit, 1)
+plot(fit,2)
+shapiro.test(residuals(fit))
+```
+
+
+Removing the Upper, Lower Whisker and Explained by Healthy Life expectancy predictors also (Final Model)
+```{r}
+library(car)
+fit2 <- lm(Ladder.score ~  Logged.GDP.per.capita +
+    Healthy.life.expectancy + Generosity + Perceptions.of.corruption + 
+    Explained.by..Social.support  + 
+    Explained.by..Freedom.to.make.life.choices + Dystopia...residual, data = happy2)
+summary(fit2)
+plot(fit2, 1)
+plot(fit2,2)
+plot(fit2, 4)
+shapiro.test(residuals(fit2))
+```
+Confidence Interval
+```{r}
+confint(fit2)
+```
+
+Coefficients
+```{r}
+coefficients(fit2)
+```
+
+```{r}
+avPlots(fit2)
+```
+
+
+```{r}
+library(faraway)
+library(psych)
+round(cor(happy2[, 2:8]), 2)
+cor.plot(happy2[, 2:8])
+```
+
+$\widehat{\text{Ladder Score}}= -2.58 +0.36\text{GDP per Capita} + 0.027\text{Healthy Life Expectancy} + 0.54\text{Generosity} - 0.71 \text{Perception of Corruption} + 1 \text{Social Support} + 1 \text{Freedom} + 1 \text{Dystopian Residual}.$
+
+VIF
+```{r}
+vif(fit2)
+```
+
+
+
+```{r}
+detach(happy)
+```
+
