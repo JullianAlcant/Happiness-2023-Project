@@ -1,7 +1,7 @@
 # 😊 World Happiness Report 2023 Data Analysis
 
 **Author:** Jullian Alcantara  
-**Tools Used:** R,
+**Tools/Package Used:** R,car,cardata, faraway,psych
 
 ---
 
