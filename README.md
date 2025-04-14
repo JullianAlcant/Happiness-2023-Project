@@ -1,7 +1,7 @@
 # 😊 World Happiness Report 2023 Data Analysis
 
 **Author:** Jullian Alcantara  
-**Tools Used:** Python, Pandas, Seaborn, Matplotlib, NumPy  
+**Tools Used:** R,
 
 ---
 
